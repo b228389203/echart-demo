@@ -1,0 +1,45 @@
+@charset "utf-8";
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: rgb(239, 239, 239)
+}
+
+.title {
+    width: 65pt;
+    margin-left: 10pt;
+    margin-top: 10pt;
+    color: rgb(71, 71, 77);
+    text-align: center;
+    font-size: 14px;
+    padding: 5px 13px;
+    border-radius: 5px;
+    background: rgb(14, 168, 170);
+}
+
+.date {
+    color: #87888a;
+    text-align: center;
+    font-size: 12px;
+    margin-top: 15px;
+}
+
+.chart {
+    height: 175pt;
+}
+
+.cutLine {
+    color: #26282e;
+    height: 10px;
+    width: 100%;
+    margin-top: 20px;
+    border: none;
+    border-top: 1px solid #555555;
+}
+
+.bottom{
+    height: 30pt;
+}

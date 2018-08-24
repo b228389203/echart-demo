@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <title>EChart</title>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <!-- 引入 ECharts 文件 -->
+    <script src="js/vue.min.js"></script>
+    <script src="js/option.js"></script>
+
+</head>
+
+
+<body>
+
+<div id="box">
+    <p class="title"> {{weakInfo.title}}</p>
+    <div ref="weakBox" class="chart"></div>
+    <p class="title"> {{monthInfo.title}} </p>
+    <div ref="monthBox" class="chart"></div>
+    <!--<p class="title"> {{yearInfo.title}} </p>-->
+    <!--<div ref="yearBox" class="chart"></div>-->
+    <!--<div class="bottom"></div>-->
+</div>
+</body>
+
+
+<script>
+    var weekChart = null;
+    var monthChart = null;
+    var yearChart = null;
+    new Vue({
+        el: '#box',
+        data: {
+            weakInfo: {
+                title: "周数据",
+                startDate: "",
+                endDate: "",
+                dataAxis: [''],
+                data: [0]
+            },
+            monthInfo: {
+                title: "月数据",
+                startDate: "",
+                endDate: "",
+                dataAxis: [],
+                data: []
+            },
+            yearInfo: {
+                title: "年数据",
+                startDate: "",
+                endDate: "",
+                dataAxis: [],
+                data: []
+            }
+
+        },
+
+        created: function () {
+            var _this = this;
+            //初始化一次数据，会默认调用一次oc的方法
+            _this.loadJsBridge();
+        },
+
+        mounted: function () {
+            var _this = this;
+            _this.createEchart();
+
+        },
+
+        methods: {
+            setupWebViewJavascriptBridge: function (callback) {
+                if (window.WebViewJavascriptBridge) {
+                    return callback(WebViewJavascriptBridge);
+                } else {
+                    document.addEventListener(
+                        'WebViewJavascriptBridgeReady', function () {
+                            callback(WebViewJavascriptBridge)
+                        }, false);
+                    if (window.WVJBCallbacks) {
+                        return window.WVJBCallbacks.push(callback);
+                    }
+                    window.WVJBCallbacks = [callback];
+                    var WVJBIframe = document.createElement('iframe');
+                    WVJBIframe.style.display = 'none';
+                    WVJBIframe.src = 'https://__bridge_loaded__';
+                    document.documentElement.appendChild(WVJBIframe);
+                    setTimeout(function () {
+                        document.documentElement.removeChild(WVJBIframe)
+                    }, 0)
+                }
+            },
+
+            loadJsBridge: function () {
+                var _this = this;
+                _this.setupWebViewJavascriptBridge(function (bridge) {
+                    bridge.registerHandler("injectChartData", function (jsonstr, responseCallback) {
+                        console.info(jsonstr);
+                        var obj = {};
+                        if (typeof(jsonstr) === 'string') {
+                            obj = JSON.parse(jsonstr);
+                        } else {
+                            obj = jsonstr;
+                        }
+
+                        _this.weakInfo = obj.week;
+                        _this.monthInfo = obj.month;
+                        _this.yearInfo = obj.year;
+                        _this.createEchart();
+                        responseCallback(responseData);
+                    });
+                    try {
+                        bridge.init(function (message, responseCallback) {
+                            var data = {
+                                'Javascript Responds': 'Wee!'
+                            };
+                            responseCallback(data);
+                        });
+                    } catch (e) {
+
+                    }
+                })
+            },
+
+            createEchart: function () {
+                if (weekChart === null) {
+                    weekChart = initChart(this.$refs.weakBox, barOption(this.weakInfo));
+                } else {
+                    updateChart(weekChart, barOption(this.weakInfo));
+                }
+                if (monthChart === null) {
+                    monthChart = initChart(this.$refs.monthBox, barOption(this.monthInfo));
+                } else {
+                    updateChart(monthChart, barOption(this.monthInfo));
+                }
+//                if (yearChart === null) {
+//                    yearChart = initChart(this.$refs.yearBox, barOption(this.yearInfo));
+//                } else {
+//                    updateChart(yearChart, barOption(this.yearInfo));
+//                }
+            }
+        }
+    });
+
+
+</script>
+</html>
